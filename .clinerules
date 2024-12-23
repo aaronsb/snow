@@ -1,0 +1,7 @@
+# Cline Rules for this Project
+
+1. Do not include TUI/interactive display commands in attempt_completion results
+   - The user will run interactive terminal commands directly (e.g. TUI apps, animations, games)
+   - The user will share screenshots when appropriate for visual feedback
+   - Regular commands (git, file operations, etc.) can still be included in attempt_completion
+   - This helps reduce token usage for interpreting complex visual/interactive outputs
