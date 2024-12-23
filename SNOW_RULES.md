@@ -100,12 +100,43 @@
 
 ## Environmental Rules
 
+### Temperature System
+- Temperature ranges from -10 to 10
+- Affects melting probability exponentially
+- Higher temperatures increase melt chance
+- Lower temperatures decrease melt chance
+
+### Melting and Compression
+- Base melt chance of 0.1%
+- Melting requires adjacent empty space or snowflakes
+- Particles cannot melt at floor boundary
+- Snow particles:
+  - 20% chance to compress to packed snow when melting
+  - 80% chance to evaporate completely
+- Packed snow particles:
+  - 30% chance to compress to ice when melting
+  - 10% chance to evaporate completely
+- Ice particles:
+  - 5% chance to melt away completely
+
+### Wind Mechanics
+- Wind strength ranges from -1 (left) to 1 (right)
+- Maximum wind force of 0.8
+- Gradual wind changes with 0.05 ramp speed
+- Affects snowflakes more than solid particles
+- Snow flakes:
+  - Full wind effect on movement
+  - Can drift horizontally based on wind strength
+- Snow/Packed Snow:
+  - Reduced wind effect (30% of full strength)
+  - Limited horizontal movement
+
 ### Floor Mechanics
 - Solid floor exists in central portion of simulation
 - Particles accumulate on floor
 - Floor width extends 25% beyond visible area on each side
 
 ### Boundary Handling
-- Simulation extends 50 % beyond visible area
+- Simulation extends 50% beyond visible area
 - Particles are removed if they reach horizontal boundaries
 - Bottom row cleared outside visible area when near capacity (95% full)
