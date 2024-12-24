@@ -1,5 +1,6 @@
 """Physics engine for snow simulation."""
 import random
+import time
 from . import config
 
 class Physics:
@@ -8,17 +9,27 @@ class Physics:
         self.grid = grid
         self.wind_strength = 0
         self.target_wind_strength = 0
+        self.wind_stop_time = 0
         
     def update_wind(self):
         """Update wind strength based on target."""
+        # Check if wind should stop
+        if self.wind_stop_time and time.time() >= self.wind_stop_time:
+            self.target_wind_strength = 0
+            self.wind_stop_time = 0
+            
         if self.wind_strength < self.target_wind_strength:
             self.wind_strength = min(self.wind_strength + config.WIND_RAMP_SPEED, self.target_wind_strength)
         elif self.wind_strength > self.target_wind_strength:
             self.wind_strength = max(self.wind_strength - config.WIND_RAMP_SPEED, self.target_wind_strength)
 
     def set_target_wind(self, target):
-        """Set the target wind strength."""
+        """Set the target wind strength and schedule stop time."""
         self.target_wind_strength = target
+        if target != 0:  # Only set timer when starting wind
+            min_duration, max_duration = config._config['physics']['wind_duration_range']
+            duration = random.uniform(min_duration, max_duration)
+            self.wind_stop_time = time.time() + duration
 
     def handle_compression(self, y, x):
         """Handle compression of particles."""
@@ -141,6 +152,17 @@ class Physics:
         
         return True
 
+    def get_snowflake_mass(self, x, y):
+        """Get the mass of a snowflake based on its character."""
+        if self.grid.get_cell(y, x) != config.SNOW_FLAKES:
+            return 1.0
+        char = self.grid.get_display_char(y, x)
+        try:
+            idx = config.SNOW_CHARS.index(char)
+            return config.SNOW_MASSES[idx]
+        except ValueError:
+            return 1.0  # Default mass if character not found
+
     def calculate_movement(self, y, x):
         """Calculate possible movement directions for a particle."""
         cell_type = self.grid.get_cell(y, x)
@@ -152,31 +174,37 @@ class Physics:
             return None
             
         moves = []
-        wind_effect = self.wind_strength * (1.0 if cell_type == config.SNOW_FLAKES else 0.3)
+        mass = self.get_snowflake_mass(x, y)
+        
+        # Adjust wind effect based on mass (lighter particles affected more by wind)
+        wind_multiplier = 1.0 / mass if cell_type == config.SNOW_FLAKES else 0.3
+        wind_effect = self.wind_strength * wind_multiplier
         
         if cell_type == config.SNOW_FLAKES:
-            # Snow flakes affected by wind
+            # Snow flakes affected by wind and mass
             can_move_down = self.grid.get_cell(y+1, x) == config.EMPTY
             can_move_left = x > 0 and self.grid.get_cell(y+1, x-1) == config.EMPTY
             can_move_right = x < self.grid.width-1 and self.grid.get_cell(y+1, x+1) == config.EMPTY
             
+            # Heavier particles fall faster (higher downward probability)
             if can_move_down:
-                moves.append((y+1, x, 0.8))  # Base downward probability
+                moves.append((y+1, x, 0.6 + (mass * 0.2)))  # Mass affects falling speed
             
-            # Diagonal movement affected by wind
-            left_prob = 0.1 - wind_effect
-            right_prob = 0.1 + wind_effect
+            # Diagonal movement affected by wind and mass
+            left_prob = (0.1 / mass) - wind_effect
+            right_prob = (0.1 / mass) + wind_effect
             
             if can_move_left and left_prob > 0:
                 moves.append((y+1, x-1, left_prob))
             if can_move_right and right_prob > 0:
                 moves.append((y+1, x+1, right_prob))
                 
-            # Horizontal movement based on wind
+            # Horizontal movement based on wind and mass
+            wind_horizontal = abs(wind_effect) * (0.5 / mass)  # Lighter particles move more horizontally
             if wind_effect < 0 and x > 0 and self.grid.get_cell(y, x-1) == config.EMPTY:
-                moves.append((y, x-1, abs(wind_effect) * 0.5))
+                moves.append((y, x-1, wind_horizontal))
             if wind_effect > 0 and x < self.grid.width-1 and self.grid.get_cell(y, x+1) == config.EMPTY:
-                moves.append((y, x+1, abs(wind_effect) * 0.5))
+                moves.append((y, x+1, wind_horizontal))
         else:
             # Snow and packed snow have more restricted movement
             if y < self.grid.height-1:

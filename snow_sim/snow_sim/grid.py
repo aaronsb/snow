@@ -18,6 +18,7 @@ class Grid:
         self.grid = np.zeros((self.height, self.width), dtype=int)
         self.snowflake_chars = np.zeros((self.height, self.width), dtype=int)
         self.snowflake_speeds = np.ones((self.height, self.width), dtype=float)
+        self.snowflake_colors = np.zeros((self.height, self.width), dtype=int)
         self.stationary_time = np.zeros((self.height, self.width), dtype=int)
         self.flake_existence_time = np.zeros((self.height, self.width), dtype=int)
 
@@ -31,6 +32,7 @@ class Grid:
             new_grid = np.zeros((new_height, new_width), dtype=int)
             new_chars = np.zeros((new_height, new_width), dtype=int)
             new_speeds = np.ones((new_height, new_width), dtype=float)
+            new_colors = np.zeros((new_height, new_width), dtype=int)
             new_stationary = np.zeros((new_height, new_width), dtype=int)
             new_existence = np.zeros((new_height, new_width), dtype=int)
             
@@ -40,6 +42,7 @@ class Grid:
             new_grid[:copy_height, :copy_width] = self.grid[:copy_height, :copy_width]
             new_chars[:copy_height, :copy_width] = self.snowflake_chars[:copy_height, :copy_width]
             new_speeds[:copy_height, :copy_width] = self.snowflake_speeds[:copy_height, :copy_width]
+            new_colors[:copy_height, :copy_width] = self.snowflake_colors[:copy_height, :copy_width]
             
             # Update dimensions and arrays
             self.width = new_width
@@ -51,6 +54,7 @@ class Grid:
             self.grid = new_grid
             self.snowflake_chars = new_chars
             self.snowflake_speeds = new_speeds
+            self.snowflake_colors = new_colors
             self.stationary_time = new_stationary
             self.flake_existence_time = new_existence
 
@@ -71,6 +75,8 @@ class Grid:
                     self.grid[0, x] = config.SNOW_FLAKES
                     self.snowflake_chars[0, x] = random.randint(0, len(config.SNOW_CHARS)-1)
                     self.snowflake_speeds[0, x] = random.uniform(0.3, 0.7)  # Keep speeds consistently light
+                    # Generate color using active color scheme
+                    self.snowflake_colors[0, x] = config.generate_snowflake_color()
                     self.flake_existence_time[0, x] = 0  # Reset existence time for new flake
 
     def clear_offscreen_bottom(self):
@@ -82,6 +88,7 @@ class Grid:
                     self.grid[-1, x] = config.EMPTY
                     self.snowflake_chars[-1, x] = 0
                     self.snowflake_speeds[-1, x] = 1.0
+                    self.snowflake_colors[-1, x] = 0
 
     def is_at_floor(self, y, x):
         """Check if the given position is at the floor."""
@@ -102,6 +109,7 @@ class Grid:
             if value == config.EMPTY:
                 self.snowflake_chars[y, x] = 0
                 self.snowflake_speeds[y, x] = 1.0
+                self.snowflake_colors[y, x] = 0
                 self.stationary_time[y, x] = 0
                 self.flake_existence_time[y, x] = 0
 
@@ -112,6 +120,7 @@ class Grid:
             self.grid[to_y, to_x] = self.grid[from_y, from_x]
             self.snowflake_chars[to_y, to_x] = self.snowflake_chars[from_y, from_x]
             self.snowflake_speeds[to_y, to_x] = self.snowflake_speeds[from_y, from_x]
+            self.snowflake_colors[to_y, to_x] = self.snowflake_colors[from_y, from_x]
             self.flake_existence_time[to_y, to_x] = self.flake_existence_time[from_y, from_x]
             self.set_cell(from_y, from_x, config.EMPTY)
 
@@ -132,7 +141,23 @@ class Grid:
         return 0
 
     def get_snowflake_char(self, y, x):
-        """Get the snowflake character for a cell."""
+        """Get the snowflake character index for a cell."""
         if 0 <= y < self.height and 0 <= x < self.width:
             return self.snowflake_chars[y, x]
         return 0
+
+    def get_display_char(self, y, x):
+        """Get the actual character to display for a cell."""
+        if 0 <= y < self.height and 0 <= x < self.width:
+            cell_type = self.grid[y, x]
+            if cell_type == config.SNOW_FLAKES:
+                char_idx = self.snowflake_chars[y, x]
+                if 0 <= char_idx < len(config.SNOW_CHARS):
+                    return config.SNOW_CHARS[char_idx], self.snowflake_colors[y, x]
+            elif cell_type == config.SNOW:
+                return config.SNOW_CHAR, None
+            elif cell_type == config.PACKED_SNOW:
+                return config.PACKED_SNOW_CHAR, None
+            elif cell_type == config.ICE:
+                return config.ICE_CHAR, None
+        return ' ', None

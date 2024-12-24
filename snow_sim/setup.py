@@ -7,6 +7,7 @@ setup(
     install_requires=[
         "blessed",
         "numpy",
+        "PyYAML",  # Added for configuration file support
     ],
     entry_points={
         'console_scripts': [

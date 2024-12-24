@@ -1,4 +1,5 @@
 """Main entry point for snow simulation."""
+import random
 import signal
 import time
 from threading import Thread
@@ -92,8 +93,6 @@ class SnowSimulation:
             self.physics.set_target_wind(
                 config.MAX_WIND_STRENGTH * random.uniform(0.7, 1.0)
             )
-        elif key.name in ['KEY_LEFT_RELEASE', 'KEY_RIGHT_RELEASE']:
-            self.physics.set_target_wind(0)
         elif key in ['+', '=']:  # Increase temperature
             self.state['temperature'] = min(self.state['temperature'] + 1, 10)
         elif key in ['-', '_']:  # Decrease temperature
@@ -127,7 +126,6 @@ class SnowSimulation:
 
 def main():
     """Entry point for the snow simulation."""
-    import random  # Import here to avoid circular import in physics.py
     simulation = SnowSimulation()
     simulation.run()
 

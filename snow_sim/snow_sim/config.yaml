@@ -1,0 +1,116 @@
+# Snow Simulation Configuration
+# This file controls various aspects of the snow simulation including physics parameters,
+# visual settings, and simulation controls.
+
+# Physics parameters that control how snow behaves
+physics:
+  # Chance for snow to melt each update (0-1)
+  melt_chance: 0.001
+  
+  # Maximum strength of wind effect (-1 to 1)
+  max_wind_strength: 0.8
+  
+  # How quickly wind builds up or dies down (higher = faster changes)
+  wind_ramp_speed: 0.05
+  
+  # Wind duration range in seconds (min, max)
+  wind_duration_range: [0.5, 2.0]
+  
+  # Base chance for snow to melt each update (0-1)
+  base_melt_chance: 0.001
+  
+  # Delay between physics updates (seconds) - controls falling speed
+  gravity_delay: 0.05
+
+# Simulation control parameters
+simulation:
+  # Maximum number of snowflakes allowed in simulation
+  max_snowflakes: 2000
+  
+  # Minimum spawn rate for new snowflakes (0-1)
+  min_spawn_rate: 0.01
+  
+  # Maximum spawn rate for new snowflakes (0-1)
+  max_spawn_rate: 0.5
+  
+  # How much spawn rate changes with up/down arrows
+  spawn_rate_step: 0.05
+  
+  # Initial simulation state
+  default_state:
+    # Start with snow falling?
+    snowing: true
+    
+    # Initial spawn rate (0-1)
+    current_spawn_rate: 0.1
+    
+    # Initial wind strength (-1 to 1, negative = left)
+    wind_strength: 0
+    
+    # Initial target wind strength
+    target_wind_strength: 0
+    
+    # Initial temperature (-10 to 10, affects melting)
+    temperature: 0
+
+# Visual appearance settings
+visual:
+  # Snowflake color configuration
+  # Only one color_scheme should be uncommented at a time
+  snowflake_colors:
+    # Current scheme: single channel ramp (grayscale)
+    color_scheme: "single_channel"
+    single_channel:
+      channel: "all"  # "all" for grayscale, or "r"/"g"/"b" for specific channel
+      min: 170       # 0xaa
+      max: 255       # 0xff
+
+    # Example: RGB range for random colors
+    # color_scheme: "rgb_range"
+    # rgb_range:
+    #   min: 0xaaaaaa
+    #   max: 0xffffff
+
+    # Example: HSL ramp for smooth color transitions
+    # color_scheme: "hsl_ramp"
+    # hsl_ramp:
+    #   hue_start: 200    # Blue
+    #   hue_end: 240      # Purple
+    #   saturation: 100   # Full saturation
+    #   lightness_min: 70 # Fairly bright
+    #   lightness_max: 90 # Very bright
+
+  # Characters used for different types of snow with associated masses
+  # Format: [char, mass] where mass affects falling speed and wind interaction
+  # Masses range from 0.5 (lightest) to 2.0 (heaviest)
+  snow_chars:
+    - ['*', 0.5]   # Very light and floaty
+    - ['+', 0.6]
+    - ['.', 0.7]
+    - ['⠋', 0.8]
+    - ['⠛', 0.9]
+    - ['⠟', 1.0]   # Medium weight
+    - ['⠿', 1.2]
+    - ['⡿', 1.4]
+    - ['⣿', 1.6]
+    - ['❆', 1.7]
+    - ['❅', 1.8]
+    - ['❄', 2.0]   # Heaviest and most resistant to wind
+  
+  # Character used for regular snow
+  snow_char: '▓'
+  
+  # Character used for packed snow
+  packed_snow_char: '▒'
+  
+  # Character used for ice
+  ice_char: '░'
+
+# Particle type identifiers
+# These should typically not be changed as they are used internally
+particles:
+  snow_flakes: 1
+  snow: 2
+  packed_snow: 3
+  ice: 4
+  empty: 0

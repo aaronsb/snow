@@ -31,18 +31,10 @@ class Renderer:
                 f"←/→: Wind | +/-: Temp ({state['temperature']}) | "
                 f"{wind_indicator}\n\n")
 
-    def get_cell_char(self, cell_type, char_index=0):
-        """Get the character representation for a cell type."""
-        if cell_type == config.SNOW_FLAKES:
-            return config.SNOW_CHARS[char_index]
-        elif cell_type == config.SNOW:
-            return config.SNOW_CHAR
-        elif cell_type == config.PACKED_SNOW:
-            return config.PACKED_SNOW_CHAR
-        elif cell_type == config.ICE:
-            return config.ICE_CHAR
-        else:
-            return ' '
+    def hex_to_rgb(self, hex_color):
+        """Convert hex color to RGB tuple."""
+        hex_str = hex(hex_color)[2:].zfill(6)  # Remove '0x' prefix and pad to 6 digits
+        return tuple(int(hex_str[i:i+2], 16) for i in (0, 2, 4))
 
     def render_grid(self, state):
         """Render the current state of the grid."""
@@ -56,9 +48,12 @@ class Renderer:
         for y in range(self.grid.height):
             for x in range(self.grid.visible_start, 
                          self.grid.visible_start + self.grid.visible_width):
-                cell_type = self.grid.get_cell(y, x)
-                char_index = self.grid.get_snowflake_char(y, x)
-                output.append(self.term.white + self.get_cell_char(cell_type, char_index))
+                char, color = self.grid.get_display_char(y, x)
+                if color is not None:
+                    r, g, b = self.hex_to_rgb(color)
+                    output.append(self.term.color_rgb(r, g, b) + char)
+                else:
+                    output.append(self.term.white + char)
             output.append('\n')
         
         sys.stdout.write(self.term.home + ''.join(output))
