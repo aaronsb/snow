@@ -81,8 +81,8 @@ class Physics:
         if self.grid.get_cell(y, x) != config.SNOW:
             return False
             
-        # Reduce stationary time requirement
-        if self.grid.get_stationary_time(y, x) <= 100:  # Was 1000
+        # Check stationary time requirement
+        if self.grid.get_stationary_time(y, x) <= 500:  # Increased from 100
             return False
             
         # Count nearby snow
@@ -108,7 +108,7 @@ class Physics:
         below = self.grid.get_cell(y+1, x)
         
         # Convert if enough snow nearby or enough depth, and has support below
-        if ((snow_count >= 5 or depth >= 2) and 
+        if ((snow_count >= 6 or depth >= 3) and  # Increased requirements
             below in [config.SNOW, config.PACKED_SNOW, config.ICE]):
             self.grid.set_cell(y, x, config.PACKED_SNOW)
             return True
@@ -119,8 +119,8 @@ class Physics:
         if self.grid.get_cell(y, x) != config.PACKED_SNOW:
             return False
             
-        # Reduce stationary time requirement
-        if self.grid.get_stationary_time(y, x) <= 200:  # Was 2000
+        # Check stationary time requirement
+        if self.grid.get_stationary_time(y, x) <= 1000:  # Increased from 200
             return False
             
         # Count nearby packed snow
@@ -146,7 +146,7 @@ class Physics:
         below = self.grid.get_cell(y+1, x)
         
         # Convert if enough packed snow nearby or enough depth, and has support below
-        if ((packed_count >= 6 or depth >= 3) and 
+        if ((packed_count >= 7 or depth >= 4) and  # Increased requirements
             below in [config.PACKED_SNOW, config.ICE]):
             self.grid.set_cell(y, x, config.ICE)
             return True
@@ -187,17 +187,17 @@ class Physics:
         if cell_type == config.SNOW_FLAKES:
             self.grid.set_cell(y, x, config.EMPTY)
         elif cell_type == config.SNOW:
-            if random.random() < 0.4:  # 40% chance to compress (was 20%)
+            if random.random() < 0.2:  # Reduced from 40%
                 self.grid.set_cell(y, x, config.PACKED_SNOW)
-            elif random.random() < 0.2:  # 20% chance to evaporate (was 80%)
+            elif random.random() < 0.2:  # Kept at 20%
                 self.grid.set_cell(y, x, config.EMPTY)
         elif cell_type == config.PACKED_SNOW:
-            if random.random() < 0.5:  # 50% chance to compress to ice (was 30%)
+            if random.random() < 0.2:  # Reduced from 50%
                 self.grid.set_cell(y, x, config.ICE)
-            elif random.random() < 0.05:  # 5% chance to evaporate (was 10%)
+            elif random.random() < 0.05:  # Kept at 5%
                 self.grid.set_cell(y, x, config.EMPTY)
         elif cell_type == config.ICE:
-            if random.random() < 0.02:  # 2% chance to melt away (was 5%)
+            if random.random() < 0.01:  # Reduced from 2%
                 self.grid.set_cell(y, x, config.EMPTY)
         
         return True
