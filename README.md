@@ -27,8 +27,8 @@ A Python-based particle simulation that creates realistic snow accumulation and 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/snow-sim.git
-cd snow-sim
+git clone https://github.com/aaronsb/snow.git
+cd snow
 ```
 
 2. Install the package:
@@ -40,13 +40,13 @@ pip install -e .
 
 Run the simulation:
 ```bash
-python -m snow_sim
+python -m snow
 ```
 
 ## Documentation
 
-- [Simulation Rules](snow_sim/snow_sim/docs/SIMULATION_RULES.md) - Detailed explanation of particle behaviors and physics
-- [Configuration](snow_sim/snow_sim/config.yaml) - Simulation parameters and settings
+- [Simulation Rules](docs/SIMULATION_RULES.md) - Detailed explanation of particle behaviors and physics
+- [Configuration](snow/config.yaml) - Simulation parameters and settings
 
 ## Requirements
 
