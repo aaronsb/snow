@@ -1,6 +1,6 @@
 # Snow Simulation
 
-A Python-based particle simulation that creates realistic snow accumulation and transformation effects. The simulation models different states of snow (snowflakes, snow, packed snow, and ice) with realistic physics and environmental interactions.
+A Python-based particle simulation that creates pseudo-realistic snow accumulation and transformation effects. The simulation models different states of snow (snowflakes, snow, packed snow, and ice) with some relatable effects to real world physics and environmental interactions.
 
 ![Snow Simulation](screenshot.png)
 
