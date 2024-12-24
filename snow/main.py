@@ -38,6 +38,8 @@ class SnowSimulation:
                                          self.state['current_spawn_rate'])
             
             self.physics.update_wind()
+            # Sync wind strength with state
+            self.state['wind_strength'] = self.physics.wind_strength
             
             # Update backoff factor based on snow height
             self.physics.current_backoff = self.physics.calculate_backoff_factor()

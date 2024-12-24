@@ -24,7 +24,7 @@ class Renderer:
         elif state['wind_strength'] > 0:
             wind_indicator = f"Wind: {abs(int(state['wind_strength'] * 100))}% →"
         else:
-            wind_indicator = "No Wind"
+            wind_indicator = "Wind: 0%"
             
         status_text = (f"Q: Quit | SPACE: Toggle Snow [{status}] | "
                       f"↑/↓: Adjust Spawn Rate ({spawn_rate_percent}%) | "
