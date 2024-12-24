@@ -185,10 +185,17 @@ class Grid:
 
     def init_background_images(self):
         """Initialize background images from configuration."""
-        if not config.BACKGROUND_IMAGES:
+        if not config.BACKGROUND_IMAGES or not config.SPRITES:
             return
             
         for image in config.BACKGROUND_IMAGES:
+            # Get sprite definition
+            sprite_name = image.get('sprite')
+            if not sprite_name or sprite_name not in config.SPRITES:
+                continue
+                
+            sprite = config.SPRITES[sprite_name]
+            
             # Calculate position based on percentages of visible area
             x_pos = int((image['x'] / 100.0) * self.visible_width)
             y_pos = int((image['y'] / 100.0) * (self.height - 3))  # Account for status line
@@ -196,15 +203,15 @@ class Grid:
             # Adjust x position to be relative to visible area
             x_pos += self.visible_start
             
-            # Get color method if specified
+            # Get color configuration
             color_method = image.get('color_method', None)
             
             # Calculate image dimensions for relative positioning
-            max_width = max(len(line) for line in image['lines'])
-            max_height = len(image['lines'])
+            max_width = max(len(line) for line in sprite['lines'])
+            max_height = len(sprite['lines'])
             
             # Draw each line of the image
-            for y_offset, line in enumerate(image['lines']):
+            for y_offset, line in enumerate(sprite['lines']):
                 for x_offset, char in enumerate(line):
                     if char != ' ':  # Skip spaces to allow for transparency
                         # Calculate relative position (0-1) within the image
@@ -212,12 +219,12 @@ class Grid:
                         rel_y = y_offset / max_height if max_height > 1 else 0
                         
                         # Generate color based on position
-                        color = (config._generate_background_color(color_method, rel_x, rel_y) 
-                               if color_method else None)
+                        bg_color = (config._generate_background_color(color_method, rel_x, rel_y) 
+                                  if color_method else None)
                         
                         self.set_background(
                             y_pos + y_offset,
                             x_pos + x_offset,
                             char,
-                            color
+                            bg_color
                         )

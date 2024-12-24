@@ -102,15 +102,17 @@ def _generate_background_color(color_method, rel_x=0.0, rel_y=0.0):
     return 0xffffff  # Default to white if method is invalid
 
 
+# Load sprites from config
+SPRITES = _config.get('sprites', {})
+
 # Process background images from config
 BACKGROUND_IMAGES = []
 for img in _config['visual'].get('background_images', []):
     processed_img = img.copy()
-    if 'color' in processed_img:
-        # Store the color method for dynamic generation
-        processed_img['color_method'] = processed_img['color']
-        # Set initial color to None - will be generated per position
-        processed_img['color'] = None
+    # Store the color method for dynamic generation
+    processed_img['color_method'] = processed_img.get('color')
+    # Set initial color to None - will be generated per position
+    processed_img['color'] = None
     BACKGROUND_IMAGES.append(processed_img)
 
 # Status display configuration
