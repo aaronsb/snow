@@ -220,9 +220,29 @@ class Grid:
             max_width = max(len(line) for line in sprite['lines'])
             max_height = len(sprite['lines'])
             
-            # Draw each line of the image
-            for y_offset, line in enumerate(sprite['lines']):
-                for x_offset, char in enumerate(line):
+            # Get scale percentages (default to 100%)
+            scale_x = image.get('scale_x', 100) / 100.0
+            scale_y = image.get('scale_y', 100) / 100.0
+            
+            # Scale dimensions using nearest neighbor
+            scaled_width = int(max_width * scale_x)
+            scaled_height = int(max_height * scale_y)
+            
+            # Draw each line of the image with scaling
+            for scaled_y in range(scaled_height):
+                # Map scaled y back to original y using nearest neighbor
+                y_offset = int(scaled_y / scale_y)
+                if y_offset >= len(sprite['lines']):
+                    continue
+                    
+                line = sprite['lines'][y_offset]
+                for scaled_x in range(scaled_width):
+                    # Map scaled x back to original x using nearest neighbor
+                    x_offset = int(scaled_x / scale_x)
+                    if x_offset >= len(line):
+                        continue
+                        
+                    char = line[x_offset]
                     if char != ' ':  # Skip spaces to allow for transparency
                         # Calculate relative position (0-1) within the image
                         rel_x = x_offset / max_width if max_width > 1 else 0
@@ -233,8 +253,8 @@ class Grid:
                                   if color_method else None)
                         
                         self.set_background(
-                            y_pos + y_offset,
-                            x_pos + x_offset,
+                            y_pos + scaled_y,
+                            x_pos + scaled_x,
                             char,
                             bg_color,
                             image.get('z', 255)  # Get z-order from image config, default to back

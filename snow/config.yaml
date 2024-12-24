@@ -40,6 +40,31 @@ sprites:
       - "████████████████████████████████████▘▗▄███████▌                     "
       - " ▀██████████████████████▘▗▄██████████████▘                        "
 
+  mountain:
+    lines:
+      - "                      ▗▄▄▄▄▖                                               "
+      - "                   ▗▄██████████▄▖                                          "
+      - "                ▗▄████████████████▄▖                                       "
+      - "             ▗▄██████████████████████▄                                    "
+      - "          ▗▄████████████████████████████▄                                "
+      - "       ▗▄███████████████████████████████████▄                           "
+      - "    ▗▄██████████████████████████████████████████▄                      "
+      - " ▗▄█████████████████████████████████████████████████▄                 "
+      - "████████████████████████████████████████████████████████              "
+
+  mountain_2:
+    lines:
+      - "                                          ▗▄▄▄▄▖                                               "
+      - "                                     ▗▄████████▄▖                        ▗▄▄▄▄▖                "
+      - "                                ▗▄██████████████████▄▖              ▗▄████████████▄            "
+      - "                           ▗▄███████████████████████████▄      ▗▄████████████████████▄        "
+      - "                      ▗▄█████████████████████████████████████████████████████████████████     "
+      - "                 ▗▄████████████████████████████████████████████████████████████████████████   "
+      - "            ▗▄███████████████████████████████████████████████████████████████████████████████ "
+      - "       ▗▄████████████████████████████████████████████████████████████████████████████████████"
+      - "  ▗▄██████████████████████████████████████████████████████████████████████████████████████████"
+      - "█████████████████████████████████████████████████████████████████████████████████████████████"
+
 # Physics parameters that control how snow behaves
 physics:
   # Chance for snow to melt each update (0-1)
@@ -199,6 +224,66 @@ visual:
         saturation: 70
         lightness_min: 40
         lightness_max: 60
+
+    - sprite: "mountain"
+      x: 10  # 10% from left
+      y: 90  # 90% from top
+      z: 135  # In front of clouds
+      scale_x: 200  # 200% horizontal scale
+      scale_y: 100  # 100% vertical scale
+      color:
+        method: "hsl_ramp"
+        direction: "vertical"
+        hue_start: 240  # Blue
+        hue_end: 220
+        saturation: 30
+        lightness_min: 15  # Darker at bottom
+        lightness_max: 25  # Slightly lighter at top
+
+    - sprite: "mountain"
+      x: 35  # 35% from left
+      y: 90  # 90% from top
+      z: 134  # Slightly in front of first mountain
+      scale_x: 200  # 200% horizontal scale
+      scale_y: 100  # 100% vertical scale
+      color:
+        method: "hsl_ramp"
+        direction: "vertical"
+        hue_start: 235
+        hue_end: 215
+        saturation: 25
+        lightness_min: 12
+        lightness_max: 22
+
+    - sprite: "mountain"
+      x: 60  # 60% from left
+      y: 80  # 80% from top
+      z: 133  # In front of other mountains
+      scale_x: 200  # 200% horizontal scale
+      scale_y: 150  # 100% vertical scale
+      color:
+        method: "hsl_ramp"
+        direction: "vertical"
+        hue_start: 230
+        hue_end: 210
+        saturation: 20
+        lightness_min: 10
+        lightness_max: 20
+    
+    - sprite: "mountain_2"
+      x: 0  # 60% from left
+      y: 60  # 80% from top
+      z: 200  # Behind other mountains
+      scale_x: 200  # 200% horizontal scale
+      scale_y: 250  # 250% vertical scale
+      color:
+        method: "hsl_ramp"
+        direction: "vertical"
+        hue_start: 230
+        hue_end: 210
+        saturation: 10
+        lightness_min: 10
+        lightness_max: 20
 
 # Particle type identifiers
 # These should typically not be changed as they are used internally
