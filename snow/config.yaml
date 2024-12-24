@@ -4,7 +4,7 @@
 
 # Sprite definitions for background images
 sprites:
-  mountain_large:
+  cloud_large:
     lines:
       - "    ▗▄▄▄▄▖    ▗▄████▄▖      ▗▄▄▄▄▖    ▗▄▄▖         ▗▄▄▄▖                         "
       - " ▗▄████████▄▖▗▄████████▄▖▗▄████████▄▖▗████████▄▖    ▗▄████▄▖                  "
@@ -15,7 +15,7 @@ sprites:
       - "      ▗▄███████████████████████████████████████████████▘                    "
       - "    ▗▄████▖          ▗▄████████▖▗▄████████████████████▖          "
   
-  mountain_medium:
+  cloud_medium:
     lines:
       - "   ▗▄████▄▖    ▗▄▄▄▄▖      ▗▄▄████▄▖        ▗▄▄▄▄▖                             "
       - " ▗███████████████████▄▖▗▄████████████████▄▖▗████████▄▖                     "
@@ -23,7 +23,7 @@ sprites:
       - "████████████████████████████████████▘▗▄███████▖  ▐████████▌                 "
       - " ▀██████████████████████▘▗▄██████████████▘▗▄▄████████▘                   "
   
-  mountain_peaks:
+  cloud_peaks:
     lines:
       - "  ▗▄████▄▄▖   ▗▄▄▄▄▖    ▗▄████████▖     ▗▄▄▄▄▖         ▗▄▄▄▖                 "
       - "▗███████████████████▄▖▗▄████████████▄▖▗████████▄▖▗▄████████▖              "
@@ -32,7 +32,7 @@ sprites:
       - "   ▀████████▘       ▀████▘     ▗███████▘ ▐████████▌      ▐██▌          "
       - "        ▀██████▖      ▀██████▘      ▀████████▘        ▀███▘            "
   
-  mountain_small:
+  cloud_small:
     lines:
       - "   ▗▄████▄▖    ▗▄▄▄▄▖      ▗▄▄████▄▖                                    "
       - " ▗███████████████████▄▖▗▄████████████████▄▖                          "
@@ -153,7 +153,7 @@ visual:
   # Sprite references with position and color information
   # Z-order: 0 (front) to 255 (back), snow scene is at 127
   background_images:
-    - sprite: "mountain_large"
+    - sprite: "cloud_large"
       x: 15  # 15% from left
       y: 15  # 15% from top
       z: 200  # Far background
@@ -166,20 +166,20 @@ visual:
         lightness_min: 30  # Lighter at top
         lightness_max: 15  # Darker at bottom
     
-    - sprite: "mountain_medium"
+    - sprite: "cloud_medium"
       x: 65  # 65% from left
       y: 25  # 25% from top
-      z: 180  # Behind large mountains
+      z: 180  # Behind large clouds
       color:
         method: "rgb_range"
         direction: "horizontal"
         min: 0x2F4F4F  # Dark slate gray (left)
         max: 0x483D8B  # Dark slate blue (right)
     
-    - sprite: "mountain_peaks"
+    - sprite: "cloud_peaks"
       x: 40  # 40% from left
       y: 10  # 10% from top
-      z: 160  # In front of medium mountains
+      z: 160  # In front of medium clouds
       color:
         method: "single_channel"
         direction: "vertical"
@@ -187,10 +187,10 @@ visual:
         min: 150  # Darker at bottom
         max: 220  # Lighter at top
     
-    - sprite: "mountain_small"
+    - sprite: "cloud_small"
       x: 5  # 5% from left
       y: 20  # 20% from top
-      z: 140  # Closest mountains, but behind snow scene (127)
+      z: 140  # Closest clouds, but behind snow scene (127)
       color:
         method: "hsl_ramp"
         direction: "horizontal"
