@@ -34,6 +34,9 @@ class SnowSimulation:
             
             self.physics.update_wind()
             
+            # Update backoff factor based on snow height
+            self.physics.current_backoff = self.physics.calculate_backoff_factor()
+            
             # Clear offscreen particles if needed
             self.grid.clear_offscreen_bottom()
             

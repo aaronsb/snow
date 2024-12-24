@@ -10,6 +10,41 @@ class Physics:
         self.wind_strength = 0
         self.target_wind_strength = 0
         self.wind_stop_time = 0
+        self.base_snow_time = 1000  # Base time for snow packing
+        self.base_ice_time = 2000   # Base time for ice formation
+        self.current_backoff = 1.0  # Current backoff factor
+        
+    def calculate_backoff_factor(self):
+        """Calculate new backoff factor based on snow coverage."""
+        total_height = self.grid.height
+        mid_height = total_height // 2
+        
+        # Count snow particles in each row
+        snow_counts = [0] * total_height
+        for y in range(total_height):
+            for x in range(self.grid.width):
+                cell = self.grid.get_cell(y, x)
+                if cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
+                    snow_counts[y] += 1
+        
+        # Find highest point with significant snow (>10% of width)
+        threshold = self.grid.width * 0.1
+        snow_height = 0
+        for y in range(total_height):
+            if snow_counts[y] > threshold:
+                snow_height = total_height - y
+                break
+        
+        # Calculate percentage of height covered
+        coverage = snow_height / mid_height if mid_height > 0 else 0
+        
+        # Calculate backoff factor (1.0 at 0%, increases exponentially as we approach 100%)
+        if coverage <= 0.5:
+            return 1.0
+        else:
+            # Exponential backoff starting at 50% coverage
+            excess = (coverage - 0.5) * 2  # 0 to 1 range
+            return 1.0 + (excess * excess * 4)  # Quadratic increase up to 5x slower
         
     def update_wind(self):
         """Update wind strength based on target."""
@@ -81,8 +116,11 @@ class Physics:
         if self.grid.get_cell(y, x) != config.SNOW:
             return False
             
+        # Apply current backoff factor to time requirement
+        required_time = int(self.base_snow_time * self.current_backoff)
+        
         # Check stationary time requirement
-        if self.grid.get_stationary_time(y, x) <= 500:  # Increased from 100
+        if self.grid.get_stationary_time(y, x) <= required_time:
             return False
             
         # Count nearby snow
@@ -108,7 +146,7 @@ class Physics:
         below = self.grid.get_cell(y+1, x)
         
         # Convert if enough snow nearby or enough depth, and has support below
-        if ((snow_count >= 6 or depth >= 3) and  # Increased requirements
+        if ((snow_count >= 7 or depth >= 4) and  # Increased requirements
             below in [config.SNOW, config.PACKED_SNOW, config.ICE]):
             self.grid.set_cell(y, x, config.PACKED_SNOW)
             return True
@@ -119,8 +157,11 @@ class Physics:
         if self.grid.get_cell(y, x) != config.PACKED_SNOW:
             return False
             
+        # Apply current backoff factor to time requirement
+        required_time = int(self.base_ice_time * self.current_backoff)
+        
         # Check stationary time requirement
-        if self.grid.get_stationary_time(y, x) <= 1000:  # Increased from 200
+        if self.grid.get_stationary_time(y, x) <= required_time:
             return False
             
         # Count nearby packed snow
@@ -146,7 +187,7 @@ class Physics:
         below = self.grid.get_cell(y+1, x)
         
         # Convert if enough packed snow nearby or enough depth, and has support below
-        if ((packed_count >= 7 or depth >= 4) and  # Increased requirements
+        if ((packed_count >= 8 or depth >= 5) and  # Increased requirements
             below in [config.PACKED_SNOW, config.ICE]):
             self.grid.set_cell(y, x, config.ICE)
             return True
