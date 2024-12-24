@@ -3,86 +3,77 @@
 ## Particle Types
 
 ### Snow Flakes (❄/❅/❆/*)
-- Most basic falling particle
-- Can transform into snow when accumulated
-- Very light and easily disturbed by wind
-- Has variable falling speeds
-- Can move diagonally and drift horizontally
-- Essentially incapable of affecting snow, packed snow, or ice
-- If sufficient number of flakes are in proximity of another flake, they convert to a single snow particle
-- If single flakes remain long enough, they will join a nearby snow, packed snow, or ice particle
-- Immediately compressed (deleted) when below a snow block, simulating snow's weight
+- Most basic falling particle with variable mass (0.5 to 2.0)
+- Lighter flakes are more affected by wind and fall slower
+- Movement influenced by:
+  - Mass (affects falling speed and wind resistance)
+  - Wind strength (causes horizontal drift)
+  - 60-80% chance to fall straight down (higher for heavier flakes)
+  - 10% base chance for diagonal movement (adjusted by wind)
+- Transforms to snow when:
+  - Surrounded by 3 or more snow/packed/ice particles
+  - Has sufficient support below (floor or existing snow)
+  - Stationary for 4-15 frames (faster when supported)
+- Compression occurs immediately when below snow/packed/ice
 
 ### Snow (░)
-- Formed from accumulated snow flakes
-- More stable than flakes but still affected by wind
-- Can transform into packed snow, given sufficient time
-- Has variable movement (20% chance, moreso on steep slopes)
-- Heavier than snow flakes - compresses (deletes) any flakes directly below it
+- Formed from accumulated snowflakes
+- More stable than flakes with reduced wind effect (30% of full strength)
+- Movement:
+  - 80% chance to remain stationary
+  - 90% chance for straight down when moving
+  - 5% chance each for diagonal movement
+- Transforms to packed snow when:
+  - 7+ surrounding snow/packed particles OR 4+ snow depth below
+  - Must have snow/packed/ice support below
+  - Stationary time varies with snow coverage (base: 1000 frames)
+- Compresses snowflakes below it
 
 ### Packed Snow (▒)
-- Formed from accumulated snow
-- More stable than regular snow
-- Can transform into ice
-- Has limited movement (5% chance to move)
+- Formed from compressed snow
+- Very stable with minimal wind effect
+- Movement:
+  - 95% chance to remain stationary
+  - 90% chance straight down when moving
+  - 5% chance each for diagonal movement
+- Transforms to ice when:
+  - 8+ surrounding packed/ice particles OR 5+ packed depth below
+  - Must have packed/ice support below
+  - Stationary time varies with snow coverage (base: 2000 frames)
 
 ### Ice (▓)
 - Final form after packed snow compression
 - Most stable particle type
-- Extremely limited movement (1% chance to move)
+- Movement:
+  - 99% chance to remain stationary
+  - 90% chance straight down when moving
+  - 5% chance each for diagonal movement
+- Extremely resistant to melting
 
-## Movement Rules
+## Dynamic Accumulation Control
 
-### Snow Flakes
-- Extremely light and fluid movement
-- Stick in place once touching or their velocity is nearly stationary
-- Individual speeds vary between 30-70% of base speed
-- Focused downward movement:
-  - Straight down (80% chance if space available)
-  - Diagonal down-left/right (10% chance each if space available)
+The simulation uses a dynamic backoff system to control snow accumulation:
 
-### Snow
-- More solid and restricted movement
-- 80% chance to remain stationary
-- When moving:
-  - Mostly straight down (90% chance if space available)
-  - Rare diagonal movement (5% chance each direction if space available)
+- Monitors snow coverage relative to screen height
+- Target coverage is bottom third of visible area
+- When exceeding target:
+  - Transformation times increase exponentially
+  - Up to 9x slower at maximum coverage
+  - Helps prevent overwhelming accumulation
+  - Creates more natural-looking snowbanks
 
-### Packed Snow
-- 95% chance to remain stationary
-- When moving:
-  - Mostly straight down (90% chance if space available)
-  - Rare diagonal movement (5% chance each direction if space available)
-  - No horizontal drift
+## Wind System
 
-### Ice
-- 99% chance to remain stationary
-- When moving:
-  - Mostly straight down (90% chance if space available)
-  - Rare diagonal movement (5% chance each direction if space available)
-  - No horizontal drift
+Wind mechanics are sophisticated and particle-dependent:
 
-## Transformation Rules
-
-### Snow Flakes to Snow
-- Neighbor-based conversion:
-  - Requires 6 or more snow flakes in surrounding area (3x3 grid)
-  - Immediately converts when touching existing snow
-  - Creates extremely gradual accumulation
-
-### Snow to Packed Snow
-- Neighbor-based conversion:
-  - Requires 7 or more snow/packed particles in surrounding area
-  - Must be stationary for 1000 frames
-  - Must have snow/packed/ice below
-  - High density and time requirements ensure very slow accumulation
-
-### Packed Snow to Ice
-- Neighbor-based conversion:
-  - Requires 8 or more packed/ice particles in surrounding area
-  - Must be stationary for 2000 frames
-  - Must have packed/ice below
-  - Extreme requirements make ice formation very rare
+- Wind strength varies from -1 (left) to 1 (right)
+- Changes gradually with 0.05 ramp speed
+- Duration varies randomly between 0.5-2.0 seconds
+- Particle-specific effects:
+  - Snowflakes: Full wind effect, scaled by mass
+  - Snow: 30% of wind strength
+  - Packed/Ice: Minimal wind effect
+- Affects both horizontal drift and diagonal movement
 
 ## Simulation Parameters
 
@@ -97,26 +88,20 @@
 - Individual snowflake speeds vary between 30-70% of base speed (to keep flakes light)
 - Particles track stationary time for transformations
 
-## Environmental Rules
+## Temperature and Melting System
 
-### Temperature System
-- Temperature ranges from -10 to 10
-- Affects melting probability exponentially
-- Higher temperatures increase melt chance
-- Lower temperatures decrease melt chance
+Temperature affects melting exponentially:
 
-### Melting and Compression
-- Base melt chance of 0.1%
-- Melting requires adjacent empty space or snowflakes
-- Particles cannot melt at floor boundary
-- Snow particles:
-  - 20% chance to compress to packed snow when melting
-  - 80% chance to evaporate completely
-- Packed snow particles:
-  - 30% chance to compress to ice when melting
-  - 10% chance to evaporate completely
-- Ice particles:
-  - 5% chance to melt away completely
+- Base melt chance: 0.02 (2%)
+- Modified by temperature exponentially: chance * (2^(temp/2))
+- Melting restrictions:
+  - Requires adjacent empty space or snowflakes
+  - Cannot melt at floor boundary
+- Particle-specific melting behavior:
+  - Snowflakes: Always evaporate
+  - Snow: 20% chance to compress to packed, 20% chance to evaporate
+  - Packed Snow: 20% chance to compress to ice, 5% chance to evaporate
+  - Ice: 1% chance to evaporate
 
 ### Wind Mechanics
 - Wind strength ranges from -1 (left) to 1 (right)

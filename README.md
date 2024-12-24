@@ -43,6 +43,22 @@ Run the simulation:
 python -m snow
 ```
 
+## Tips & Tricks
+
+- **Building Snow Mountains**: 
+  - Start with colder temperatures (below zero) to allow snow to accumulate faster
+  - Once you have good accumulation, increase temperature to 0-2 to create a pleasing melting effect
+  - This creates natural-looking snow mountain formations
+
+- **Interactive Mountains**:
+  - Click on the mountain backgrounds to modify their shape
+  - Build custom landscapes to affect snow accumulation patterns
+
+- **Wind Effects**:
+  - Strong winds can blow snowflakes off mountains
+  - Wind also causes snowflakes to clump together more quickly
+  - Use wind strategically to shape snow formations
+
 ## Documentation
 
 - [Simulation Rules](docs/SIMULATION_RULES.md) - Detailed explanation of particle behaviors and physics
