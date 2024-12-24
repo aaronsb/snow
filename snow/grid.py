@@ -196,13 +196,25 @@ class Grid:
             # Adjust x position to be relative to visible area
             x_pos += self.visible_start
             
-            # Get color if specified
-            color = image.get('color', None)
+            # Get color method if specified
+            color_method = image.get('color_method', None)
+            
+            # Calculate image dimensions for relative positioning
+            max_width = max(len(line) for line in image['lines'])
+            max_height = len(image['lines'])
             
             # Draw each line of the image
             for y_offset, line in enumerate(image['lines']):
                 for x_offset, char in enumerate(line):
                     if char != ' ':  # Skip spaces to allow for transparency
+                        # Calculate relative position (0-1) within the image
+                        rel_x = x_offset / max_width if max_width > 1 else 0
+                        rel_y = y_offset / max_height if max_height > 1 else 0
+                        
+                        # Generate color based on position
+                        color = (config._generate_background_color(color_method, rel_x, rel_y) 
+                               if color_method else None)
+                        
                         self.set_background(
                             y_pos + y_offset,
                             x_pos + x_offset,

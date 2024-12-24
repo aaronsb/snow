@@ -121,7 +121,14 @@ visual:
   background_images:
     - x: 15  # 15% from left
       y: 15  # 15% from top
-      color: 0x4B0082  # Indigo - distant mountains
+      color:
+        method: "hsl_ramp"
+        direction: "vertical"
+        hue_start: 270  # Purple
+        hue_end: 290
+        saturation: 80
+        lightness_min: 30  # Lighter at top
+        lightness_max: 15  # Darker at bottom
       lines:
         - "    ▗▄▄▄▄▖    ▗▄████▄▖      ▗▄▄▄▄▖    ▗▄▄▖         ▗▄▄▄▖                         "
         - " ▗▄████████▄▖▗▄████████▄▖▗▄████████▄▖▗████████▄▖    ▗▄████▄▖                  "
@@ -133,7 +140,11 @@ visual:
         - "    ▗▄████▖          ▗▄████████▖▗▄████████████████████▖          "
     - x: 65  # 65% from left
       y: 25  # 25% from top
-      color: 0x483D8B  # Dark slate blue - mid mountains
+      color:
+        method: "rgb_range"
+        direction: "horizontal"
+        min: 0x2F4F4F  # Dark slate gray (left)
+        max: 0x483D8B  # Dark slate blue (right)
       lines:
         - "   ▗▄████▄▖    ▗▄▄▄▄▖      ▗▄▄████▄▖        ▗▄▄▄▄▖                             "
         - " ▗███████████████████▄▖▗▄████████████████▄▖▗▄████████▄▖                     "
@@ -142,7 +153,12 @@ visual:
         - " ▀██████████████████████▘▗▄██████████████▘▗▄▄████████▘                   "
     - x: 40  # 40% from left
       y: 10  # 10% from top
-      color: 0x6A5ACD  # Slate blue - closer mountains
+      color:
+        method: "single_channel"
+        direction: "vertical"
+        channel: "b"
+        min: 150  # Darker at bottom
+        max: 220  # Lighter at top
       lines:
         - "  ▗▄████▄▄▖   ▗▄▄▄▄▖    ▗▄████████▖     ▗▄▄▄▄▖         ▗▄▄▄▖                 "
         - "▗███████████████████▄▖▗▄████████████▄▖▗████████▄▖▗▄████████▖              "
@@ -152,7 +168,14 @@ visual:
         - "        ▀██████▖      ▀██████▘      ▀████████▘        ▀███▘            "
     - x: 5  # 5% from left
       y: 20  # 20% from top
-      color: 0x7B68EE  # Medium slate blue - foreground mountains
+      color:
+        method: "hsl_ramp"
+        direction: "horizontal"
+        hue_start: 240  # Start with deeper blue (right)
+        hue_end: 220   # End with lighter blue (left)
+        saturation: 70
+        lightness_min: 40
+        lightness_max: 60
       lines:
         - "   ▗▄████▄▖    ▗▄▄▄▄▖      ▗▄▄████▄▖                                    "
         - " ▗███████████████████▄▖▗▄████████████████▄▖                          "

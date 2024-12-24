@@ -36,8 +36,82 @@ SPAWN_RATE_STEP = _config['simulation']['spawn_rate_step']
 import colorsys
 import random
 
-# Background images from config
-BACKGROUND_IMAGES = _config['visual'].get('background_images', [])
+def _generate_background_color(color_method, rel_x=0.0, rel_y=0.0):
+    """Generate a color based on the specified method and relative position (0-1)."""
+    if isinstance(color_method, int):  # Handle legacy solid color format
+        return color_method
+        
+    method = color_method.get('method')
+    direction = color_method.get('direction', 'horizontal')
+    # Use x or y position based on direction
+    position = rel_x if direction == 'horizontal' else rel_y
+        
+    if method == 'single_channel':
+        channel = color_method.get('channel', 'all')
+        min_val = color_method.get('min', 170)
+        max_val = color_method.get('max', 255)
+        
+        # Use position to interpolate between min and max
+        value = int(min_val + (max_val - min_val) * position)
+        
+        if channel == 'all':  # Grayscale
+            return (value << 16) | (value << 8) | value
+        elif channel == 'r':
+            return value << 16
+        elif channel == 'g':
+            return value << 8
+        elif channel == 'b':
+            return value
+            
+    elif method == 'rgb_range':
+        min_color = color_method.get('min', 0xaaaaaa)
+        max_color = color_method.get('max', 0xffffff)
+        
+        # Extract RGB components
+        min_r = (min_color >> 16) & 0xFF
+        min_g = (min_color >> 8) & 0xFF
+        min_b = min_color & 0xFF
+        max_r = (max_color >> 16) & 0xFF
+        max_g = (max_color >> 8) & 0xFF
+        max_b = max_color & 0xFF
+        
+        # Interpolate each component
+        r = int(min_r + (max_r - min_r) * position)
+        g = int(min_g + (max_g - min_g) * position)
+        b = int(min_b + (max_b - min_b) * position)
+        
+        return (r << 16) | (g << 8) | b
+        
+    elif method == 'hsl_ramp':
+        hue_start = color_method.get('hue_start', 200)
+        hue_end = color_method.get('hue_end', 240)
+        saturation = color_method.get('saturation', 100)
+        lightness_min = color_method.get('lightness_min', 70)
+        lightness_max = color_method.get('lightness_max', 90)
+        
+        # Interpolate hue based on position
+        hue = (hue_start + (hue_end - hue_start) * position) / 360.0
+        sat = saturation / 100.0
+        
+        # Can also interpolate lightness if specified
+        light = (lightness_min + (lightness_max - lightness_min) * position) / 100.0
+        
+        r, g, b = colorsys.hls_to_rgb(hue, light, sat)
+        return (int(r * 255) << 16) | (int(g * 255) << 8) | int(b * 255)
+        
+    return 0xffffff  # Default to white if method is invalid
+
+
+# Process background images from config
+BACKGROUND_IMAGES = []
+for img in _config['visual'].get('background_images', []):
+    processed_img = img.copy()
+    if 'color' in processed_img:
+        # Store the color method for dynamic generation
+        processed_img['color_method'] = processed_img['color']
+        # Set initial color to None - will be generated per position
+        processed_img['color'] = None
+    BACKGROUND_IMAGES.append(processed_img)
 
 # Status display configuration
 STATUS_DISPLAY = _config['visual'].get('status_display', {
