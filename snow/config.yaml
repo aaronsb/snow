@@ -175,8 +175,14 @@ visual:
     y: 0  # 0% from top (top of screen)
     color: 0xffffff  # White color for status text
 
-  # Sprite references with position and color information
+  # Sprite references with position, scaling, and color information
   # Z-order: 0 (front) to 255 (back), snow scene is at 127
+  # Scaling:
+  #   scale_x: Horizontal scale percentage (100 = original size, 200 = double width)
+  #   scale_y: Vertical scale percentage (100 = original size, 200 = double height)
+  #   - Scales from upper left origin using nearest neighbor interpolation
+  #   - Defaults to 100% if not specified
+  #   - Can be set independently for width/height stretching effects
   background_images:
     - sprite: "cloud_large"
       x: 15  # 15% from left

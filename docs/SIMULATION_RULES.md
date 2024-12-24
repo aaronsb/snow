@@ -135,6 +135,24 @@
 - Particles accumulate on floor
 - Floor width extends 25% beyond visible area on each side
 
+## Background Sprites
+
+### Sprite Properties
+- Position (x,y): Percentage-based positioning relative to visible area
+- Z-order: Depth from 0 (front) to 255 (back), snow scene is at 127
+- Color: Various coloring methods including solid, RGB range, and HSL ramp
+- Scaling:
+  - scale_x: Horizontal scale percentage (100 = original size, 200 = double width)
+  - scale_y: Vertical scale percentage (100 = original size, 200 = double height)
+  - Scales from upper left origin using nearest neighbor interpolation
+  - Defaults to 100% if not specified
+  - Can be set independently for width/height stretching effects
+
+### Sprite Layering
+- Background sprites are rendered behind snow (z > 127)
+- Multiple sprites can overlap based on z-order
+- Transparency supported through space characters
+
 ### Boundary Handling
 - Simulation extends 50% beyond visible area
 - Particles are removed if they reach horizontal boundaries
