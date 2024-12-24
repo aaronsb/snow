@@ -29,7 +29,8 @@ class Renderer:
                 f"Q: Quit | SPACE: Toggle Snow [{status}] | "
                 f"↑/↓: Adjust Spawn Rate ({spawn_rate_percent}%) | "
                 f"←/→: Wind | +/-: Temp ({state['temperature']}) | "
-                f"{wind_indicator}\n\n")
+                f"{wind_indicator} | "
+                f"Click: Add/Remove Snow\n\n")
 
     def hex_to_rgb(self, hex_color):
         """Convert hex color to RGB tuple."""

@@ -113,6 +113,12 @@ class SnowSimulation:
         physics_thread.daemon = True
         physics_thread.start()
         
+        # Enable mouse reporting
+        print('\033[?1000h')  # Enable mouse click tracking
+        print('\033[?1002h')  # Enable mouse movement tracking
+        print('\033[?1015h')  # Enable urxvt style extended mouse reporting
+        print('\033[?1006h')  # Enable SGR extended mouse reporting
+        
         with self.renderer.term.fullscreen(), \
              self.renderer.term.cbreak(), \
              self.renderer.term.hidden_cursor():
@@ -120,11 +126,65 @@ class SnowSimulation:
             self.renderer.clear_screen()
             
             while self.running:
-                key = self.renderer.term.inkey(timeout=0.01)
-                if self.handle_input(key):
+                val = self.renderer.term.inkey(timeout=0.01)
+                
+                # Handle mouse events
+                if val == '\x1b':  # ESC sequence start
+                    seq = val
+                    while True:
+                        next_char = self.renderer.term.inkey(timeout=0.01)
+                        if not next_char:
+                            break
+                        seq += next_char
+                        if seq.endswith('M') or seq.endswith('m'):
+                            break
+                    
+                    # Parse SGR mouse sequence: \x1b[<Cb;Cx;Cy[M|m]
+                    if seq.startswith('\x1b[<') and (seq.endswith('M') or seq.endswith('m')):
+                        try:
+                            parts = seq[3:-1].split(';')
+                            btn = int(parts[0])
+                            x = int(parts[1]) - 1  # Convert to 0-based
+                            y = int(parts[2]) - 1  # Convert to 0-based
+                            
+                            # Only process left click (btn = 0) press events (ends with M)
+                            if btn == 0 and seq.endswith('M'):
+                                # Adjust y coordinate for status lines
+                                y = y - 2  # Account for status lines
+                                x = x + self.grid.visible_start
+                                
+                                if 0 <= y < self.grid.height and self.grid.visible_start <= x < self.grid.visible_start + self.grid.visible_width:
+                                    cell = self.grid.get_cell(y, x)
+                                    if cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
+                                        # Remove snow/ice in a 7x7 grid centered on click
+                                        for dy in range(-3, 4):
+                                            for dx in range(-3, 4):
+                                                ny, nx = y + dy, x + dx
+                                                if (0 <= ny < self.grid.height and 
+                                                    self.grid.visible_start <= nx < self.grid.visible_start + self.grid.visible_width):
+                                                    cell = self.grid.get_cell(ny, nx)
+                                                    if cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
+                                                        self.grid.set_cell(ny, nx, config.EMPTY)
+                                    elif cell in [config.EMPTY, config.SNOW_FLAKES]:
+                                        # Add snow in a 7x7 grid centered on click
+                                        for dy in range(-3, 4):
+                                            for dx in range(-3, 4):
+                                                ny, nx = y + dy, x + dx
+                                                if (0 <= ny < self.grid.height and 
+                                                    self.grid.visible_start <= nx < self.grid.visible_start + self.grid.visible_width):
+                                                    if self.grid.get_cell(ny, nx) == config.EMPTY:
+                                                        self.grid.set_cell(ny, nx, config.SNOW)
+                        except (IndexError, ValueError):
+                            pass  # Invalid mouse sequence
+                elif self.handle_input(val):
                     break
                 self.renderer.render_grid(self.state)
         
+        # Disable mouse reporting and restore terminal
+        print('\033[?1000l')  # Disable mouse click tracking
+        print('\033[?1002l')  # Disable mouse movement tracking
+        print('\033[?1015l')  # Disable urxvt style extended mouse reporting
+        print('\033[?1006l')  # Disable SGR extended mouse reporting
         print(self.renderer.term.normal)
 
 def main():

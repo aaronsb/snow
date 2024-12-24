@@ -71,33 +71,60 @@ class Physics:
         if self.grid.get_cell(y, x) != config.SNOW_FLAKES:
             return False
             
-        # Count nearby snow and snow flakes
-        snow_neighbors = 0
+        # Check if at floor with snow above
+        is_at_floor = self.grid.is_at_floor(y, x)
+        if is_at_floor:
+            above = self.grid.get_cell(y-1, x) if y > 0 else None
+            if above in [config.SNOW, config.PACKED_SNOW, config.ICE]:
+                self.grid.set_cell(y, x, config.SNOW)
+                return True
+
+        # Check adjacent cells (up, down, left, right)
+        adjacent_snow = 0
+        total_neighbors = 0
+        for dy, dx in [(0, -1), (0, 1), (-1, 0), (1, 0)]:  # Left, right, up, down
+            ny, nx = y + dy, x + dx
+            cell = self.grid.get_cell(ny, nx)
+            if cell is not None:  # If within bounds
+                total_neighbors += 1
+                if cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
+                    adjacent_snow += 1
+
+        # Convert immediately if surrounded on 3 or more sides
+        if total_neighbors >= 3 and adjacent_snow >= 3:
+            self.grid.set_cell(y, x, config.SNOW)
+            return True
+
+        # For non-surrounded cases, check diagonal neighbors too
+        snow_neighbors = adjacent_snow
         flake_neighbors = []
-        for dy in range(-1, 2):
-            for dx in range(-1, 2):
-                ny, nx = y + dy, x + dx
-                cell = self.grid.get_cell(ny, nx)
-                if cell == config.SNOW_FLAKES:
-                    flake_neighbors.append((ny, nx))
-                elif cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
-                    snow_neighbors += 1
+        for dy in [-1, 0, 1]:
+            for dx in [-1, 0, 1]:
+                if dy == 0 and dx == 0:  # Skip center
+                    continue
+                if dy in [-1, 1] and dx in [-1, 1]:  # Diagonal positions
+                    ny, nx = y + dy, x + dx
+                    cell = self.grid.get_cell(ny, nx)
+                    if cell == config.SNOW_FLAKES:
+                        flake_neighbors.append((ny, nx))
+                    elif cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
+                        snow_neighbors += 1
 
         # Check what's below
         is_on_floor = self.grid.is_at_floor(y, x)
         below = self.grid.get_cell(y+1, x) if y < self.grid.height-1 else None
         is_on_snow = below in [config.SNOW, config.PACKED_SNOW, config.ICE]
         has_support = is_on_floor or is_on_snow
-        
+
         # Determine compression threshold based on conditions
-        threshold = 4  # Lower default threshold
+        threshold = 4  # Default threshold
         if has_support:
-            threshold = 3  # Even easier when supported
+            threshold = 3  # Easier when supported
         if snow_neighbors >= 2:
             threshold = 2  # Very easy when surrounded by snow
-            
+
         # Adjust stationary time requirement
-        required_time = 15  # Lower default time
+        required_time = 15  # Default time
         if has_support:
             required_time = 8  # Faster when supported
         if snow_neighbors >= 2:
