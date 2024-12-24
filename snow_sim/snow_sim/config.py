@@ -36,6 +36,9 @@ SPAWN_RATE_STEP = _config['simulation']['spawn_rate_step']
 import colorsys
 import random
 
+# Background images from config
+BACKGROUND_IMAGES = _config['visual'].get('background_images', [])
+
 def _generate_single_channel_color():
     """Generate a color using the single channel configuration."""
     channel_config = _config['visual']['snowflake_colors']['single_channel']
