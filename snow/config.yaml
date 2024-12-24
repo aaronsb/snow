@@ -5,7 +5,7 @@
 # Physics parameters that control how snow behaves
 physics:
   # Chance for snow to melt each update (0-1)
-  melt_chance: 0.005
+  melt_chance: 0.020
   
   # Maximum strength of wind effect (-1 to 1)
   max_wind_strength: 0.8
@@ -17,7 +17,7 @@ physics:
   wind_duration_range: [0.5, 2.0]
   
   # Base chance for snow to melt each update (0-1)
-  base_melt_chance: 0.001
+  base_melt_chance: 0.020
   
   # Delay between physics updates (seconds) - controls falling speed
   gravity_delay: 0.05
@@ -106,6 +106,12 @@ visual:
   # Character used for ice
   ice_char: '░'
 
+  # Status display configuration
+  status_display:
+    x: 0  # 0% from left (start of line)
+    y: 0  # 0% from top (top of screen)
+    color: 0xffffff  # White color for status text
+
   # Background images defined as text arrays
   # Each image has:
   # - x: percentage from left edge (0-100)
@@ -115,31 +121,44 @@ visual:
   background_images:
     - x: 15  # 15% from left
       y: 15  # 15% from top
-      color: 0xaaaaaa  # Light gray
+      color: 0x4B0082  # Indigo - distant mountains
       lines:
-        - "     .--.     "
-        - "  .-'    `-.  "
-        - " (          ) "
-        - "  `-._  _.-'  "
-        - "      ``      "
+        - "    ▗▄▄▄▄▖    ▗▄████▄▖      ▗▄▄▄▄▖    ▗▄▄▖         ▗▄▄▄▖                         "
+        - " ▗▄████████▄▖▗▄████████▄▖▗▄████████▄▖▗████████▄▖    ▗▄████▄▖                  "
+        - "▐█████████████████████████████████████████████████▄▗███████████▌              "
+        - "████████████████████████████████████████████████████████████████▌             "
+        - " ▐██████████▌    ▐████████████████████████████████████████████▌             "
+        - "  ▀████████    ▗▄████████████████████████████████████████████▘              "
+        - "      ▗▄███████████████████████████████████████████████▘                    "
+        - "    ▗▄████▖          ▗▄████████▖▗▄████████████████████▖          "
     - x: 65  # 65% from left
       y: 25  # 25% from top
-      color: 0x999999  # Medium gray
+      color: 0x483D8B  # Dark slate blue - mid mountains
       lines:
-        - "   .--.   "
-        - " .'    '. "
-        - "(        )"
-        - " `.    .' "
-        - "   `--'   "
+        - "   ▗▄████▄▖    ▗▄▄▄▄▖      ▗▄▄████▄▖        ▗▄▄▄▄▖                             "
+        - " ▗███████████████████▄▖▗▄████████████████▄▖▗▄████████▄▖                     "
+        - "███████████████████████████████████████████████████████████▖                "
+        - "████████████████████████████████████▘▗▄███████▖  ▐████████▌                 "
+        - " ▀██████████████████████▘▗▄██████████████▘▗▄▄████████▘                   "
     - x: 40  # 40% from left
       y: 10  # 10% from top
-      color: 0x888888  # Another gray shade
+      color: 0x6A5ACD  # Slate blue - closer mountains
       lines:
-        - "  .---.  "
-        - " /     \\ "
-        - "(       )"
-        - " \\     / "
-        - "  `---'  "
+        - "  ▗▄████▄▄▖   ▗▄▄▄▄▖    ▗▄████████▖     ▗▄▄▄▄▖         ▗▄▄▄▖                 "
+        - "▗███████████████████▄▖▗▄████████████▄▖▗████████▄▖▗▄████████▖              "
+        - "████████████████████████████████████████████████████████████▌            "
+        - " ▐███████████████████████████████████████████████████████▌            "
+        - "   ▀████████▘       ▀████▘     ▗███████▘ ▐████████▌      ▐██▌          "
+        - "        ▀██████▖      ▀██████▘      ▀████████▘        ▀███▘            "
+    - x: 5  # 5% from left
+      y: 20  # 20% from top
+      color: 0x7B68EE  # Medium slate blue - foreground mountains
+      lines:
+        - "   ▗▄████▄▖    ▗▄▄▄▄▖      ▗▄▄████▄▖                                    "
+        - " ▗███████████████████▄▖▗▄████████████████▄▖                          "
+        - "███████████████████████████████████████████████▖                    "
+        - "████████████████████████████████████▘▗▄███████▌                     "
+        - " ▀██████████████████████▘▗▄██████████████▘                        "
 
 # Particle type identifiers
 # These should typically not be changed as they are used internally

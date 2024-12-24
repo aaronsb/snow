@@ -39,6 +39,13 @@ import random
 # Background images from config
 BACKGROUND_IMAGES = _config['visual'].get('background_images', [])
 
+# Status display configuration
+STATUS_DISPLAY = _config['visual'].get('status_display', {
+    'x': 0,
+    'y': 0,
+    'color': 0xffffff  # Default to white if not specified
+})
+
 def _generate_single_channel_color():
     """Generate a color using the single channel configuration."""
     channel_config = _config['visual']['snowflake_colors']['single_channel']
