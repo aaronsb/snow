@@ -106,6 +106,41 @@ visual:
   # Character used for ice
   ice_char: '░'
 
+  # Background images defined as text arrays
+  # Each image has:
+  # - x: percentage from left edge (0-100)
+  # - y: percentage from top edge (0-100)
+  # - color: optional hex color code (e.g. 0x808080 for gray)
+  # - lines: array of text strings forming the image
+  background_images:
+    - x: 15  # 15% from left
+      y: 15  # 15% from top
+      color: 0xaaaaaa  # Light gray
+      lines:
+        - "     .--.     "
+        - "  .-'    `-.  "
+        - " (          ) "
+        - "  `-._  _.-'  "
+        - "      ``      "
+    - x: 65  # 65% from left
+      y: 25  # 25% from top
+      color: 0x999999  # Medium gray
+      lines:
+        - "   .--.   "
+        - " .'    '. "
+        - "(        )"
+        - " `.    .' "
+        - "   `--'   "
+    - x: 40  # 40% from left
+      y: 10  # 10% from top
+      color: 0x888888  # Another gray shade
+      lines:
+        - "  .---.  "
+        - " /     \\ "
+        - "(       )"
+        - " \\     / "
+        - "  `---'  "
+
 # Particle type identifiers
 # These should typically not be changed as they are used internally
 particles:

@@ -21,6 +21,12 @@ class Grid:
         self.snowflake_colors = np.zeros((self.height, self.width), dtype=int)
         self.stationary_time = np.zeros((self.height, self.width), dtype=int)
         self.flake_existence_time = np.zeros((self.height, self.width), dtype=int)
+        # Background layer
+        self.background = np.zeros((self.height, self.width), dtype=int)
+        self.background_colors = np.zeros((self.height, self.width), dtype=int)
+        
+        # Initialize background images from config
+        self.init_background_images()
 
     def update_dimensions(self):
         """Update grid dimensions based on terminal size."""
@@ -35,6 +41,8 @@ class Grid:
             new_colors = np.zeros((new_height, new_width), dtype=int)
             new_stationary = np.zeros((new_height, new_width), dtype=int)
             new_existence = np.zeros((new_height, new_width), dtype=int)
+            new_background = np.zeros((new_height, new_width), dtype=int)
+            new_bg_colors = np.zeros((new_height, new_width), dtype=int)
             
             # Copy existing snow within new bounds
             copy_height = min(self.height, new_height)
@@ -43,6 +51,8 @@ class Grid:
             new_chars[:copy_height, :copy_width] = self.snowflake_chars[:copy_height, :copy_width]
             new_speeds[:copy_height, :copy_width] = self.snowflake_speeds[:copy_height, :copy_width]
             new_colors[:copy_height, :copy_width] = self.snowflake_colors[:copy_height, :copy_width]
+            new_background[:copy_height, :copy_width] = self.background[:copy_height, :copy_width]
+            new_bg_colors[:copy_height, :copy_width] = self.background_colors[:copy_height, :copy_width]
             
             # Update dimensions and arrays
             self.width = new_width
@@ -57,6 +67,8 @@ class Grid:
             self.snowflake_colors = new_colors
             self.stationary_time = new_stationary
             self.flake_existence_time = new_existence
+            self.background = new_background
+            self.background_colors = new_bg_colors
 
     def spawn_snowflakes(self, snowing, current_spawn_rate):
         """Spawn new snowflakes at the top of the screen."""
@@ -160,4 +172,40 @@ class Grid:
                 return config.PACKED_SNOW_CHAR, None
             elif cell_type == config.ICE:
                 return config.ICE_CHAR, None
+            elif cell_type == config.EMPTY and self.background[y, x] != 0:
+                return chr(self.background[y, x]), self.background_colors[y, x]
         return ' ', None
+
+    def set_background(self, y, x, char, color=None):
+        """Set a background character and optionally its color at the given position."""
+        if 0 <= y < self.height and 0 <= x < self.width:
+            self.background[y, x] = ord(char)
+            if color is not None:
+                self.background_colors[y, x] = color
+
+    def init_background_images(self):
+        """Initialize background images from configuration."""
+        if not config.BACKGROUND_IMAGES:
+            return
+            
+        for image in config.BACKGROUND_IMAGES:
+            # Calculate position based on percentages of visible area
+            x_pos = int((image['x'] / 100.0) * self.visible_width)
+            y_pos = int((image['y'] / 100.0) * (self.height - 3))  # Account for status line
+            
+            # Adjust x position to be relative to visible area
+            x_pos += self.visible_start
+            
+            # Get color if specified
+            color = image.get('color', None)
+            
+            # Draw each line of the image
+            for y_offset, line in enumerate(image['lines']):
+                for x_offset, char in enumerate(line):
+                    if char != ' ':  # Skip spaces to allow for transparency
+                        self.set_background(
+                            y_pos + y_offset,
+                            x_pos + x_offset,
+                            char,
+                            color
+                        )
