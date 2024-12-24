@@ -24,6 +24,7 @@ class Grid:
         # Background layer
         self.background = np.zeros((self.height, self.width), dtype=int)
         self.background_colors = np.zeros((self.height, self.width), dtype=int)
+        self.background_z = np.full((self.height, self.width), 255, dtype=int)  # Initialize all to back
         
         # Initialize background images from config
         self.init_background_images()
@@ -43,6 +44,7 @@ class Grid:
             new_existence = np.zeros((new_height, new_width), dtype=int)
             new_background = np.zeros((new_height, new_width), dtype=int)
             new_bg_colors = np.zeros((new_height, new_width), dtype=int)
+            new_bg_z = np.full((new_height, new_width), 255, dtype=int)
             
             # Copy existing snow within new bounds
             copy_height = min(self.height, new_height)
@@ -53,6 +55,7 @@ class Grid:
             new_colors[:copy_height, :copy_width] = self.snowflake_colors[:copy_height, :copy_width]
             new_background[:copy_height, :copy_width] = self.background[:copy_height, :copy_width]
             new_bg_colors[:copy_height, :copy_width] = self.background_colors[:copy_height, :copy_width]
+            new_bg_z[:copy_height, :copy_width] = self.background_z[:copy_height, :copy_width]
             
             # Update dimensions and arrays
             self.width = new_width
@@ -69,6 +72,7 @@ class Grid:
             self.flake_existence_time = new_existence
             self.background = new_background
             self.background_colors = new_bg_colors
+            self.background_z = new_bg_z
 
     def spawn_snowflakes(self, snowing, current_spawn_rate):
         """Spawn new snowflakes at the top of the screen."""
@@ -162,26 +166,32 @@ class Grid:
         """Get the actual character to display for a cell."""
         if 0 <= y < self.height and 0 <= x < self.width:
             cell_type = self.grid[y, x]
-            if cell_type == config.SNOW_FLAKES:
-                char_idx = self.snowflake_chars[y, x]
-                if 0 <= char_idx < len(config.SNOW_CHARS):
-                    return config.SNOW_CHARS[char_idx], self.snowflake_colors[y, x]
-            elif cell_type == config.SNOW:
-                return config.SNOW_CHAR, None
-            elif cell_type == config.PACKED_SNOW:
-                return config.PACKED_SNOW_CHAR, None
-            elif cell_type == config.ICE:
-                return config.ICE_CHAR, None
-            elif cell_type == config.EMPTY and self.background[y, x] != 0:
+            # Snow particles are at z=127 (middle layer)
+            if cell_type != config.EMPTY and self.background_z[y, x] > 127:
+                if cell_type == config.SNOW_FLAKES:
+                    char_idx = self.snowflake_chars[y, x]
+                    if 0 <= char_idx < len(config.SNOW_CHARS):
+                        return config.SNOW_CHARS[char_idx], self.snowflake_colors[y, x]
+                elif cell_type == config.SNOW:
+                    return config.SNOW_CHAR, None
+                elif cell_type == config.PACKED_SNOW:
+                    return config.PACKED_SNOW_CHAR, None
+                elif cell_type == config.ICE:
+                    return config.ICE_CHAR, None
+            # Background is visible if no snow or if background is in front of snow layer
+            if self.background[y, x] != 0 and (cell_type == config.EMPTY or self.background_z[y, x] <= 127):
                 return chr(self.background[y, x]), self.background_colors[y, x]
         return ' ', None
 
-    def set_background(self, y, x, char, color=None):
-        """Set a background character and optionally its color at the given position."""
+    def set_background(self, y, x, char, color=None, z_order=255):
+        """Set a background character and optionally its color and z-order at the given position."""
         if 0 <= y < self.height and 0 <= x < self.width:
-            self.background[y, x] = ord(char)
-            if color is not None:
-                self.background_colors[y, x] = color
+            # Only update if new z-order is in front of existing
+            if z_order <= self.background_z[y, x]:
+                self.background[y, x] = ord(char)
+                if color is not None:
+                    self.background_colors[y, x] = color
+                self.background_z[y, x] = z_order
 
     def init_background_images(self):
         """Initialize background images from configuration."""
@@ -226,5 +236,6 @@ class Grid:
                             y_pos + y_offset,
                             x_pos + x_offset,
                             char,
-                            bg_color
+                            bg_color,
+                            image.get('z', 255)  # Get z-order from image config, default to back
                         )

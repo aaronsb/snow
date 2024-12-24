@@ -151,10 +151,12 @@ visual:
     color: 0xffffff  # White color for status text
 
   # Sprite references with position and color information
+  # Z-order: 0 (front) to 255 (back), snow scene is at 127
   background_images:
     - sprite: "mountain_large"
       x: 15  # 15% from left
       y: 15  # 15% from top
+      z: 200  # Far background
       color:
         method: "hsl_ramp"
         direction: "vertical"
@@ -167,6 +169,7 @@ visual:
     - sprite: "mountain_medium"
       x: 65  # 65% from left
       y: 25  # 25% from top
+      z: 180  # Behind large mountains
       color:
         method: "rgb_range"
         direction: "horizontal"
@@ -176,6 +179,7 @@ visual:
     - sprite: "mountain_peaks"
       x: 40  # 40% from left
       y: 10  # 10% from top
+      z: 160  # In front of medium mountains
       color:
         method: "single_channel"
         direction: "vertical"
@@ -186,6 +190,7 @@ visual:
     - sprite: "mountain_small"
       x: 5  # 5% from left
       y: 20  # 20% from top
+      z: 140  # Closest mountains, but behind snow scene (127)
       color:
         method: "hsl_ramp"
         direction: "horizontal"
