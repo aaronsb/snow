@@ -5,7 +5,7 @@
 # Physics parameters that control how snow behaves
 physics:
   # Chance for snow to melt each update (0-1)
-  melt_chance: 0.001
+  melt_chance: 0.005
   
   # Maximum strength of wind effect (-1 to 1)
   max_wind_strength: 0.8

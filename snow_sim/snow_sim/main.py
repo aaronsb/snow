@@ -17,6 +17,9 @@ class SnowSimulation:
         self.renderer = Renderer(self.grid)
         self.running = True
         self.state = config.DEFAULT_STATE.copy()
+        # Track last mouse position for movement
+        self.last_mouse_x = None
+        self.last_mouse_y = None
 
     def handle_exit(self, signum, frame):
         """Handle exit gracefully."""
@@ -147,33 +150,79 @@ class SnowSimulation:
                             x = int(parts[1]) - 1  # Convert to 0-based
                             y = int(parts[2]) - 1  # Convert to 0-based
                             
-                            # Only process left click (btn = 0) press events (ends with M)
-                            if btn == 0 and seq.endswith('M'):
-                                # Adjust y coordinate for status lines
-                                y = y - 2  # Account for status lines
-                                x = x + self.grid.visible_start
-                                
-                                if 0 <= y < self.grid.height and self.grid.visible_start <= x < self.grid.visible_start + self.grid.visible_width:
-                                    cell = self.grid.get_cell(y, x)
-                                    if cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
-                                        # Remove snow/ice in a 7x7 grid centered on click
-                                        for dy in range(-3, 4):
-                                            for dx in range(-3, 4):
-                                                ny, nx = y + dy, x + dx
-                                                if (0 <= ny < self.grid.height and 
-                                                    self.grid.visible_start <= nx < self.grid.visible_start + self.grid.visible_width):
-                                                    cell = self.grid.get_cell(ny, nx)
-                                                    if cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
-                                                        self.grid.set_cell(ny, nx, config.EMPTY)
-                                    elif cell in [config.EMPTY, config.SNOW_FLAKES]:
-                                        # Add snow in a 7x7 grid centered on click
-                                        for dy in range(-3, 4):
-                                            for dx in range(-3, 4):
-                                                ny, nx = y + dy, x + dx
-                                                if (0 <= ny < self.grid.height and 
-                                                    self.grid.visible_start <= nx < self.grid.visible_start + self.grid.visible_width):
-                                                    if self.grid.get_cell(ny, nx) == config.EMPTY:
-                                                        self.grid.set_cell(ny, nx, config.SNOW)
+                            # Process mouse events
+                            is_press = seq.endswith('M')
+                            is_release = seq.endswith('m')
+                            
+                            # Adjust coordinates
+                            y = y - 2  # Account for status lines
+                            x = x + self.grid.visible_start
+                            
+                            if 0 <= y < self.grid.height and self.grid.visible_start <= x < self.grid.visible_start + self.grid.visible_width:
+                                if btn == 0:  # Left click
+                                    if is_press:
+                                        # Start tracking mouse position
+                                        self.last_mouse_x = x
+                                        self.last_mouse_y = y
+                                    elif is_release:
+                                        # Clear last position on release
+                                        self.last_mouse_x = None
+                                        self.last_mouse_y = None
+                                        # On mouse up, create or destroy snow
+                                        cell = self.grid.get_cell(y, x)
+                                        if cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
+                                            # Remove snow/ice in a 7x7 grid
+                                            for dy in range(-3, 4):
+                                                for dx in range(-3, 4):
+                                                    ny, nx = y + dy, x + dx
+                                                    if (0 <= ny < self.grid.height and 
+                                                        self.grid.visible_start <= nx < self.grid.visible_start + self.grid.visible_width):
+                                                        cell = self.grid.get_cell(ny, nx)
+                                                        if cell in [config.SNOW, config.PACKED_SNOW, config.ICE]:
+                                                            self.grid.set_cell(ny, nx, config.EMPTY)
+                                        elif cell in [config.EMPTY, config.SNOW_FLAKES]:
+                                            # Add snow in a 7x7 grid
+                                            for dy in range(-3, 4):
+                                                for dx in range(-3, 4):
+                                                    ny, nx = y + dy, x + dx
+                                                    if (0 <= ny < self.grid.height and 
+                                                        self.grid.visible_start <= nx < self.grid.visible_start + self.grid.visible_width):
+                                                        if self.grid.get_cell(ny, nx) == config.EMPTY:
+                                                            self.grid.set_cell(ny, nx, config.SNOW)
+                                elif btn == 32 and self.last_mouse_x is not None:  # Mouse move while held (btn 32 is motion)
+                                    # Calculate movement direction
+                                    move_dx = x - self.last_mouse_x
+                                    move_dy = y - self.last_mouse_y
+                                        
+                                    # Only process if there was movement
+                                    if move_dx != 0 or move_dy != 0:
+                                        # Normalize movement direction
+                                        magnitude = (move_dx * move_dx + move_dy * move_dy) ** 0.5
+                                        if magnitude > 0:
+                                            norm_dx = move_dx / magnitude
+                                            norm_dy = move_dy / magnitude
+                                            
+                                            # Push particles in 7x7 grid in movement direction
+                                            for dy in range(-3, 4):
+                                                for dx in range(-3, 4):
+                                                    ny, nx = y + dy, x + dx
+                                                    if (0 <= ny < self.grid.height and 
+                                                        self.grid.visible_start <= nx < self.grid.visible_start + self.grid.visible_width):
+                                                        cell = self.grid.get_cell(ny, nx)
+                                                        if cell in [config.SNOW, config.PACKED_SNOW, config.ICE, config.SNOW_FLAKES]:
+                                                            # Push in movement direction
+                                                            target_x = int(nx + norm_dx)
+                                                            target_y = int(ny + norm_dy)
+                                                            
+                                                            # Check if target position is valid and empty
+                                                            if (0 <= target_y < self.grid.height and
+                                                                self.grid.visible_start <= target_x < self.grid.visible_start + self.grid.visible_width and
+                                                                self.grid.get_cell(target_y, target_x) == config.EMPTY):
+                                                                self.grid.move_cell(ny, nx, target_y, target_x)
+                                    
+                                    # Update last position
+                                    self.last_mouse_x = x
+                                    self.last_mouse_y = y
                         except (IndexError, ValueError):
                             pass  # Invalid mouse sequence
                 elif self.handle_input(val):

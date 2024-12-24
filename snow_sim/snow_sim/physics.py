@@ -35,16 +35,17 @@ class Physics:
                 snow_height = total_height - y
                 break
         
-        # Calculate percentage of height covered
-        coverage = snow_height / mid_height if mid_height > 0 else 0
+        # Calculate percentage of height covered relative to mid-height target
+        coverage = snow_height / total_height if total_height > 0 else 0
+        target_coverage = 0.33  # Target is bottom third of height
         
-        # Calculate backoff factor (1.0 at 0%, increases exponentially as we approach 100%)
-        if coverage <= 0.5:
+        # Calculate backoff factor (1.0 below target, increases exponentially as we exceed target)
+        if coverage <= target_coverage:
             return 1.0
         else:
-            # Exponential backoff starting at 50% coverage
-            excess = (coverage - 0.5) * 2  # 0 to 1 range
-            return 1.0 + (excess * excess * 4)  # Quadratic increase up to 5x slower
+            # Exponential backoff starting at target coverage
+            excess = (coverage - target_coverage) / target_coverage  # Normalized excess
+            return 1.0 + (excess * excess * 8)  # Steeper quadratic increase up to 9x slower
         
     def update_wind(self):
         """Update wind strength based on target."""
