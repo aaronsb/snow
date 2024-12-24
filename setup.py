@@ -6,7 +6,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 setup(
-    name="snow_sim",
+    name="snow",
     version="0.1.0",
     packages=find_packages(),
     install_requires=[
@@ -16,7 +16,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'snow-sim=snow_sim.main:main',
+            'snow-sim=snow.main:main',
         ],
     },
     author="Aaron Bockelie",
@@ -40,6 +40,6 @@ setup(
     python_requires=">=3.8",
     include_package_data=True,
     package_data={
-        "snow_sim": ["config.yaml", "docs/*.md"],
+        "snow": ["*.yaml", "../docs/*.md"],
     },
 )
