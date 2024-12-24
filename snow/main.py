@@ -20,6 +20,8 @@ class SnowSimulation:
         # Track last mouse position for movement
         self.last_mouse_x = None
         self.last_mouse_y = None
+        # Track status visibility
+        self.show_status = False
 
     def handle_exit(self, signum, frame):
         """Handle exit gracefully."""
@@ -103,6 +105,8 @@ class SnowSimulation:
             self.state['temperature'] = min(self.state['temperature'] + 1, 10)
         elif key in ['-', '_']:  # Decrease temperature
             self.state['temperature'] = max(self.state['temperature'] - 1, -10)
+        elif key.lower() == 'h':  # Toggle help display (upper or lowercase)
+            self.show_status = not self.show_status
         
         return False
 
@@ -154,8 +158,8 @@ class SnowSimulation:
                             is_press = seq.endswith('M')
                             is_release = seq.endswith('m')
                             
-                            # Adjust coordinates
-                            y = y - 2  # Account for status lines
+                            # Adjust coordinates for grid position
+                            y = y - 2  # Account for status lines at top
                             x = x + self.grid.visible_start
                             
                             if 0 <= y < self.grid.height and self.grid.visible_start <= x < self.grid.visible_start + self.grid.visible_width:
@@ -227,7 +231,8 @@ class SnowSimulation:
                             pass  # Invalid mouse sequence
                 elif self.handle_input(val):
                     break
-                self.renderer.render_grid(self.state)
+                
+                self.renderer.render_grid(self.state, self.show_status)
         
         # Disable mouse reporting and restore terminal
         print('\033[?1000l')  # Disable mouse click tracking
